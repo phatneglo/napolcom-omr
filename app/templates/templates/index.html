@@ -1,0 +1,191 @@
+{% extends "layout.html" %}
+
+{% block title %}Templates - NAPOLCOM OMR Processing System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2>Form Templates</h2>
+        <p class="text-muted">Manage your form templates</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="/templates/new" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Template
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">Templates</h5>
+            </div>
+            <div class="col-auto">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search templates..." id="search-input">
+                    <button class="btn btn-outline-secondary" type="button" id="search-button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created At</th>
+                    <th>Regions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="templates-list">
+                <tr>
+                    <td colspan="6" class="text-center py-4">Loading templates...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination justify-content-center mb-0" id="pagination">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Load templates on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadTemplates();
+    });
+    
+    // Load templates from API
+    async function loadTemplates(page = 1, search = '') {
+        try {
+            const response = await apiRequest(`/templates?page=${page}&limit=10${search ? `&search=${search}` : ''}`);
+            
+            const tableBody = document.getElementById('templates-list');
+            const pagination = document.getElementById('pagination');
+            
+            // Clear existing content
+            tableBody.innerHTML = '';
+            
+            // Check if we have templates
+            if (response.items.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            No templates found. <a href="/templates/new">Create your first template</a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add each template to the table
+            response.items.forEach(template => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${template.id}</td>
+                    <td>${template.name}</td>
+                    <td>${template.description || '-'}</td>
+                    <td>${formatDate(template.created_at)}</td>
+                    <td>${template.regions ? template.regions.length : 0}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/templates/${template.id}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="/templates/${template.id}/edit" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Update pagination
+            updatePagination(response.page, Math.ceil(response.total / response.limit));
+        } catch (error) {
+            console.error('Error loading templates:', error);
+            showNotification('Failed to load templates', 'danger');
+        }
+    }
+    
+    // Update pagination controls
+    function updatePagination(currentPage, totalPages) {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+        
+        // Previous button
+        const prevItem = document.createElement('li');
+        prevItem.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+        prevItem.innerHTML = `<a class="page-link" href="#" ${currentPage > 1 ? `onclick="loadTemplates(${currentPage - 1}); return false;"` : ''}>Previous</a>`;
+        pagination.appendChild(prevItem);
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            const pageItem = document.createElement('li');
+            pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            pageItem.innerHTML = `<a class="page-link" href="#" onclick="loadTemplates(${i}); return false;">${i}</a>`;
+            pagination.appendChild(pageItem);
+        }
+        
+        // Next button
+        const nextItem = document.createElement('li');
+        nextItem.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+        nextItem.innerHTML = `<a class="page-link" href="#" ${currentPage < totalPages ? `onclick="loadTemplates(${currentPage + 1}); return false;"` : ''}>Next</a>`;
+        pagination.appendChild(nextItem);
+    }
+    
+    // Delete template
+    async function deleteTemplate(id) {
+        if (!confirm(`Are you sure you want to delete template #${id}?`)) {
+            return;
+        }
+        
+        try {
+            await apiRequest(`/templates/${id}`, { method: 'DELETE' });
+            showNotification('Template deleted successfully', 'success');
+            loadTemplates(); // Reload the list
+        } catch (error) {
+            console.error('Error deleting template:', error);
+            showNotification('Failed to delete template', 'danger');
+        }
+    }
+    
+    // Handle search
+    document.getElementById('search-button').addEventListener('click', () => {
+        const searchTerm = document.getElementById('search-input').value.trim();
+        loadTemplates(1, searchTerm);
+    });
+    
+    // Allow search on Enter key
+    document.getElementById('search-input').addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            const searchTerm = document.getElementById('search-input').value.trim();
+            loadTemplates(1, searchTerm);
+        }
+    });
+</script>
+{% endblock %}

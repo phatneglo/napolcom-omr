@@ -1,0 +1,270 @@
+{% extends "layout.html" %}
+
+{% block title %}Analytics - NAPOLCOM OMR Processing System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Analytics</h2>
+        <p class="text-muted">View processing statistics and performance metrics</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Forms Processed</h5>
+                        <h2 class="mb-0">124</h2>
+                    </div>
+                    <i class="bi bi-file-earmark-check fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Avg. Confidence</h5>
+                        <h2 class="mb-0">96.2%</h2>
+                    </div>
+                    <i class="bi bi-check-circle fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Processing Time</h5>
+                        <h2 class="mb-0">2.4s</h2>
+                    </div>
+                    <i class="bi bi-stopwatch fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Error Rate</h5>
+                        <h2 class="mb-0">1.8%</h2>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Processing Activity</h5>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">Daily</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary active">Weekly</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary">Monthly</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="activity-chart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Distribution by Set Type</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="set-type-chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Error Analysis</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="error-chart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Answer Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="answer-chart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize charts on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load analytics data
+        loadAnalytics();
+    });
+    
+    // Load analytics data
+    async function loadAnalytics() {
+        // In a real implementation, we would fetch data from the API
+        // For now, we'll use sample data
+        
+        // Initialize charts with sample data
+        initActivityChart();
+        initSetTypeChart();
+        initErrorChart();
+        initAnswerChart();
+    }
+    
+    // Initialize activity chart
+    function initActivityChart() {
+        const ctx = document.getElementById('activity-chart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [
+                    {
+                        label: 'Forms Processed',
+                        data: [65, 59, 80, 81, 56, 55, 40],
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Initialize set type chart
+    function initSetTypeChart() {
+        const ctx = document.getElementById('set-type-chart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Set A', 'Set B', 'Set C'],
+                datasets: [
+                    {
+                        data: [40, 35, 25],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 206, 86, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 99, 132)',
+                            'rgb(255, 206, 86)'
+                        ],
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+    
+    // Initialize error chart
+    function initErrorChart() {
+        const ctx = document.getElementById('error-chart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Alignment', 'Set Type', 'App Number', 'Answer Bubbles', 'Text Fields'],
+                datasets: [
+                    {
+                        label: 'Error Frequency',
+                        data: [2, 1, 3, 2, 4],
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Initialize answer chart
+    function initAnswerChart() {
+        const ctx = document.getElementById('answer-chart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Option A', 'Option B', 'Option C', 'Option D', 'Option E'],
+                datasets: [
+                    {
+                        label: 'Answer Frequency',
+                        data: [250, 320, 280, 310, 240],
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

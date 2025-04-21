@@ -1,0 +1,239 @@
+/* Custom styles for NAPOLCOM OMR Processing System */
+
+/* General styles */
+:root {
+    --primary-color: #1a73e8;
+    --secondary-color: #5f6368;
+    --success-color: #34a853;
+    --info-color: #4285f4;
+    --warning-color: #fbbc05;
+    --danger-color: #ea4335;
+    --light-color: #f8f9fa;
+    --dark-color: #202124;
+}
+
+body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: #202124;
+    background-color: #f5f5f5;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.footer {
+    margin-top: 2rem;
+    padding: 2rem 0;
+    color: #5f6368;
+    font-size: 0.9rem;
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #f1f3f4;
+    padding: 1rem 1.25rem;
+}
+
+.card-footer {
+    background-color: #fff;
+    border-top: 1px solid #f1f3f4;
+}
+
+/* Form styles */
+.form-control, .form-select {
+    border-radius: 0.25rem;
+    border: 1px solid #dadce0;
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(26, 115, 232, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #0e62d3;
+    border-color: #0e62d3;
+}
+
+.btn-outline-secondary {
+    color: var(--secondary-color);
+    border-color: #dadce0;
+}
+
+.btn-outline-secondary:hover, .btn-outline-secondary:focus {
+    background-color: #f1f3f4;
+    color: var(--dark-color);
+    border-color: #dadce0;
+}
+
+/* Tables */
+.table {
+    color: var(--dark-color);
+}
+
+.table thead th {
+    border-bottom: 2px solid #f1f3f4;
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Dropzone */
+.dropzone {
+    border: 2px dashed #dadce0;
+    border-radius: 0.5rem;
+    background: #fbfbfc;
+    min-height: 200px;
+    padding: 20px;
+    transition: border-color 0.3s ease;
+}
+
+.dropzone:hover {
+    border-color: var(--primary-color);
+}
+
+.dropzone .dz-message {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.dropzone .dz-preview {
+    margin: 10px;
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+/* Progress bars */
+.progress {
+    height: 0.5rem;
+    border-radius: 1rem;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    background-color: var(--primary-color);
+}
+
+/* Template editor */
+.template-canvas {
+    position: relative;
+    border: 1px solid #dadce0;
+    background-color: #f8f9fa;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.template-region {
+    position: absolute;
+    border: 2px solid var(--primary-color);
+    background-color: rgba(26, 115, 232, 0.1);
+    cursor: move;
+}
+
+.template-region.selected {
+    border-color: var(--success-color);
+}
+
+.template-region .region-label {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* Results viewer */
+.results-container {
+    display: flex;
+}
+
+.results-original {
+    flex: 1;
+    padding-right: 10px;
+}
+
+.results-extracted {
+    flex: 1;
+    padding-left: 10px;
+}
+
+.results-image {
+    max-width: 100%;
+    border: 1px solid #dadce0;
+    border-radius: 0.25rem;
+}
+
+/* Dark mode toggle */
+.dark-mode-toggle {
+    width: 60px;
+    height: 30px;
+    position: relative;
+    border-radius: 15px;
+    background-color: #f1f3f4;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dark-mode-toggle.active {
+    background-color: var(--dark-color);
+}
+
+.dark-mode-toggle .toggle-handle {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.dark-mode-toggle.active .toggle-handle {
+    transform: translateX(30px);
+    background-color: var(--primary-color);
+}

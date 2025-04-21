@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+
+{% block title %}Register - NAPOLCOM OMR Processing System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Create Account</h4>
+            </div>
+            <div class="card-body">
+                <form id="register-form">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="reg_username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm-password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm-password" name="confirm-password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Already have an account? <a href="/login">Login</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('register-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            alert('Passwords do not match.');
+            return;
+        }
+        
+        try {
+            // Display the request we're about to make in the console for debugging
+            console.log('Sending registration request with data:', {
+                username,
+                email,
+                password
+            });
+            
+            const response = await fetch('/api/v1/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: password
+                })
+            });
+            
+            // For debugging, log the exact request that was sent
+            console.log('Request sent. Status:', response.status);
+            
+            if (response.ok) {
+                const data = await response.json();
+                alert('Registration successful! Please login with your new account.');
+                window.location.href = '/login';
+            } else {
+                const errorText = await response.text();
+                console.error('Registration failed. Response:', errorText);
+                
+                try {
+                    const error = JSON.parse(errorText);
+                    alert('Registration failed: ' + (error.detail || JSON.stringify(error)));
+                } catch {
+                    alert('Registration failed. Please check the console for details.');
+                }
+            }
+        } catch (error) {
+            console.error('Error during registration:', error);
+            alert('An error occurred during registration.');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,563 @@
+{% extends "layout.html" %}
+
+{% block title %}Process Form - NAPOLCOM OMR Processing System{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Process Form</h2>
+        <p class="text-muted">Upload and process OMR forms</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Upload Form</h5>
+            </div>
+            <div class="card-body">
+                <form id="form-upload" class="dropzone" enctype="multipart/form-data">
+                    <div class="dz-message needsclick">
+                        <i class="bi bi-cloud-arrow-up-fill display-4 text-muted"></i>
+                        <h3>Drop files here or click to upload</h3>
+                        <span class="text-muted">Only image files are accepted</span>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <div class="text-end">
+                    <button type="button" id="clear-dropzone" class="btn btn-outline-secondary me-2">Clear</button>
+                    <button type="button" id="start-processing" class="btn btn-primary" disabled>Start Processing</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Processing Options</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="template-select" class="form-label">Template</label>
+                        <select id="template-select" class="form-select">
+                            <option value="" disabled selected>Select template</option>
+                            <!-- Templates will be loaded dynamically -->
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="model-select" class="form-label">Model</label>
+                        <select id="model-select" class="form-select" disabled>
+                            <option value="" disabled selected>Select model</option>
+                            <!-- Models will be loaded dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Image Enhancement</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-auto-rotate" checked>
+                        <label class="form-check-label" for="option-auto-rotate">
+                            Auto-rotate and align
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-enhance-contrast" checked>
+                        <label class="form-check-label" for="option-enhance-contrast">
+                            Enhance contrast
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-grid-removal" checked>
+                        <label class="form-check-label" for="option-grid-removal">
+                            Apply grid removal for text fields
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Validation</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-validation" checked>
+                        <label class="form-check-label" for="option-validation">
+                            Run validation checks
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="option-save-intermediate">
+                        <label class="form-check-label" for="option-save-intermediate">
+                            Save intermediate processing images
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="output-format" class="form-label">Output Format</label>
+                    <select id="output-format" class="form-select">
+                        <option value="json" selected>JSON</option>
+                        <option value="csv">CSV</option>
+                        <option value="xlsx">Excel (XLSX)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Processing Queue</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <h6 class="mb-0">Active</h6>
+                        <p class="text-muted mb-0">Currently processing</p>
+                    </div>
+                    <span class="badge bg-primary" id="queue-active">0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <h6 class="mb-0">Pending</h6>
+                        <p class="text-muted mb-0">Waiting in queue</p>
+                    </div>
+                    <span class="badge bg-warning" id="queue-pending">0</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="mb-0">Completed</h6>
+                        <p class="text-muted mb-0">Last 24 hours</p>
+                    </div>
+                    <span class="badge bg-success" id="queue-completed">0</span>
+                </div>
+
+                <hr>
+
+                <div class="list-group list-group-flush" id="active-tasks">
+                    <div class="list-group-item p-0 border-0">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="mb-0">Task #47831</p>
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                                </div>
+                                <p class="text-muted small mb-0">75% complete</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/processing/queue" class="btn btn-sm btn-primary">View All Tasks</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Results</h5>
+            </div>
+            <div class="list-group list-group-flush" id="recent-results">
+                <div class="list-group-item p-0 border-0">
+                    <p class="mb-2"><a href="/processing/forms/123">Form #123</a></p>
+                    <p class="mb-0 text-muted small">Processed at: 2025-04-21 14:30</p>
+                    <p class="mb-0 text-muted small">Confidence: 98.2%</p>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="/processing/forms" class="btn btn-sm btn-primary">View All Results</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Status Modal -->
+<div class="modal fade" id="processing-modal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Processing Forms</h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mb-0 mt-2" id="processing-status">Processing form(s)...</p>
+                </div>
+                <div class="progress mb-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="processing-progress" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-muted small">Please do not close this window while processing. This may take a few minutes.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.js"></script>
+<script>
+    // Initialize variables
+    let templates = [];
+    let models = [];
+    let uploadedFiles = [];
+    let processingTasks = [];
+    
+    // Initialize Dropzone
+    Dropzone.autoDiscover = false;
+    const myDropzone = new Dropzone("#form-upload", {
+        url: "/api/v1/processing/upload",
+        acceptedFiles: "image/*",
+        addRemoveLinks: true,
+        autoProcessQueue: false,
+        parallelUploads: 10,
+        uploadMultiple: true,
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem('token')}`
+        },
+        init: function() {
+            this.on("addedfile", function(file) {
+                uploadedFiles.push(file);
+                document.getElementById("start-processing").disabled = !canStartProcessing();
+            });
+            
+            this.on("removedfile", function(file) {
+                const index = uploadedFiles.indexOf(file);
+                if (index > -1) {
+                    uploadedFiles.splice(index, 1);
+                }
+                document.getElementById("start-processing").disabled = !canStartProcessing();
+            });
+            
+            this.on("sending", function(file, xhr, formData) {
+                const templateId = document.getElementById("template-select").value;
+                const modelId = document.getElementById("model-select").value;
+                
+                formData.append("template_id", templateId);
+                formData.append("model_id", modelId);
+                formData.append("auto_rotate", document.getElementById("option-auto-rotate").checked);
+                formData.append("enhance_contrast", document.getElementById("option-enhance-contrast").checked);
+                formData.append("grid_removal", document.getElementById("option-grid-removal").checked);
+                formData.append("validation", document.getElementById("option-validation").checked);
+                formData.append("save_intermediate", document.getElementById("option-save-intermediate").checked);
+                formData.append("output_format", document.getElementById("output-format").value);
+            });
+            
+            this.on("success", function(file, response) {
+                processingTasks.push(response.task_id);
+                updateProcessingProgress();
+            });
+            
+            this.on("queuecomplete", function() {
+                // All uploads complete
+                // We'll now poll for task status updates
+                startPollingTasks();
+            });
+        }
+    });
+    
+    // Clear dropzone
+    document.getElementById("clear-dropzone").addEventListener("click", function() {
+        myDropzone.removeAllFiles();
+        uploadedFiles = [];
+        document.getElementById("start-processing").disabled = true;
+    });
+    
+    // Start processing
+    document.getElementById("start-processing").addEventListener("click", function() {
+        if (!canStartProcessing()) {
+            alert("Please select a template, model, and upload at least one file.");
+            return;
+        }
+        
+        // Show processing modal
+        const processingModal = new bootstrap.Modal(document.getElementById("processing-modal"));
+        processingModal.show();
+        
+        // Start processing queue
+        myDropzone.processQueue();
+    });
+    
+    // Check if processing can start
+    function canStartProcessing() {
+        const templateId = document.getElementById("template-select").value;
+        const modelId = document.getElementById("model-select").value;
+        
+        return templateId && modelId && uploadedFiles.length > 0;
+    }
+    
+    // Template selection change handler
+    document.getElementById("template-select").addEventListener("change", function() {
+        const templateId = this.value;
+        if (!templateId) {
+            document.getElementById("model-select").disabled = true;
+            document.getElementById("model-select").innerHTML = '<option value="" disabled selected>Select model</option>';
+            return;
+        }
+        
+        // Load models for this template
+        loadModels(templateId);
+    });
+    
+    // Load templates
+    async function loadTemplates() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            const response = await fetch('/api/v1/templates', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                templates = data.items;
+                
+                // Populate template select
+                const templateSelect = document.getElementById("template-select");
+                templateSelect.innerHTML = '<option value="" disabled selected>Select template</option>';
+                
+                templates.forEach(template => {
+                    const option = document.createElement("option");
+                    option.value = template.id;
+                    option.textContent = template.name;
+                    templateSelect.appendChild(option);
+                });
+            } else {
+                console.error('Failed to fetch templates');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    
+    // Load models for a template
+    async function loadModels(templateId) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            const response = await fetch(`/api/v1/training/models?template_id=${templateId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                models = data.items;
+                
+                // Populate model select
+                const modelSelect = document.getElementById("model-select");
+                modelSelect.innerHTML = '<option value="" disabled selected>Select model</option>';
+                
+                models.forEach(model => {
+                    const option = document.createElement("option");
+                    option.value = model.id;
+                    option.textContent = model.model_name;
+                    modelSelect.appendChild(option);
+                });
+                
+                modelSelect.disabled = false;
+            } else {
+                console.error('Failed to fetch models');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    
+    // Load queue stats
+    async function loadQueueStats() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            const response = await fetch('/api/v1/processing/queue/stats', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Update queue counts
+                document.getElementById("queue-active").textContent = data.active;
+                document.getElementById("queue-pending").textContent = data.pending;
+                document.getElementById("queue-completed").textContent = data.completed;
+                
+                // Update active tasks list
+                const activeTasks = document.getElementById("active-tasks");
+                activeTasks.innerHTML = '';
+                
+                if (data.active_tasks.length === 0) {
+                    activeTasks.innerHTML = '<div class="list-group-item p-0 border-0">No active tasks</div>';
+                } else {
+                    data.active_tasks.forEach(task => {
+                        const taskItem = document.createElement("div");
+                        taskItem.className = "list-group-item p-0 border-0";
+                        taskItem.innerHTML = `
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="mb-0">Task #${task.id}</p>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${task.progress * 100}%"></div>
+                                    </div>
+                                    <p class="text-muted small mb-0">${Math.round(task.progress * 100)}% complete</p>
+                                </div>
+                            </div>
+                        `;
+                        activeTasks.appendChild(taskItem);
+                    });
+                }
+                
+                // Update recent results list
+                const recentResults = document.getElementById("recent-results");
+                recentResults.innerHTML = '';
+                
+                if (data.recent_forms.length === 0) {
+                    recentResults.innerHTML = '<div class="list-group-item p-0 border-0">No recent forms</div>';
+                } else {
+                    data.recent_forms.forEach(form => {
+                        const formItem = document.createElement("div");
+                        formItem.className = "list-group-item p-0 border-0";
+                        formItem.innerHTML = `
+                            <p class="mb-2"><a href="/processing/forms/${form.id}">Form #${form.id}</a></p>
+                            <p class="mb-0 text-muted small">Processed at: ${new Date(form.processed_at).toLocaleString()}</p>
+                            <p class="mb-0 text-muted small">Confidence: ${Math.round(form.confidence_score * 100)}%</p>
+                        `;
+                        recentResults.appendChild(formItem);
+                    });
+                }
+            } else {
+                console.error('Failed to fetch queue stats');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    
+    // Poll for task status updates
+    function startPollingTasks() {
+        if (processingTasks.length === 0) {
+            return;
+        }
+        
+        const pollInterval = setInterval(async () => {
+            let allCompleted = true;
+            let totalProgress = 0;
+            
+            for (let i = 0; i < processingTasks.length; i++) {
+                const taskId = processingTasks[i];
+                try {
+                    const response = await fetch(`/api/v1/processing/tasks/${taskId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Update progress
+                        totalProgress += data.progress / processingTasks.length;
+                        
+                        // Check if task is still running
+                        if (data.status !== 'completed' && data.status !== 'failed') {
+                            allCompleted = false;
+                        }
+                    } else {
+                        console.error(`Failed to fetch status for task ${taskId}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+            
+            // Update progress bar
+            const progressBar = document.getElementById('processing-progress');
+            progressBar.style.width = `${Math.round(totalProgress * 100)}%`;
+            progressBar.textContent = `${Math.round(totalProgress * 100)}%`;
+            
+            // Update status text
+            document.getElementById('processing-status').textContent = 
+                `Processing ${processingTasks.length} form(s): ${Math.round(totalProgress * 100)}% complete`;
+            
+            // If all tasks are completed, stop polling
+            if (allCompleted) {
+                clearInterval(pollInterval);
+                
+                // Refresh queue stats
+                loadQueueStats();
+                
+                // Update UI
+                document.getElementById('processing-status').textContent = 'Processing complete!';
+                
+                // Close modal after a delay
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('processing-modal')).hide();
+                    
+                    // Clear form
+                    myDropzone.removeAllFiles();
+                    uploadedFiles = [];
+                    processingTasks = [];
+                    document.getElementById("start-processing").disabled = true;
+                    
+                    // Show success message
+                    alert('All forms processed successfully!');
+                    
+                    // Redirect to results page
+                    window.location.href = '/processing/forms';
+                }, 2000);
+            }
+        }, 1000);
+    }
+    
+    // Update processing progress
+    function updateProcessingProgress() {
+        const progress = processingTasks.length / uploadedFiles.length;
+        
+        // Update progress bar
+        const progressBar = document.getElementById('processing-progress');
+        progressBar.style.width = `${Math.round(progress * 100)}%`;
+        
+        // Update status text
+        document.getElementById('processing-status').textContent = 
+            `Uploading ${processingTasks.length} of ${uploadedFiles.length} files...`;
+    }
+    
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load templates
+        loadTemplates();
+        
+        // Load queue stats
+        loadQueueStats();
+        
+        // Refresh queue stats periodically
+        setInterval(loadQueueStats, 10000);
+    });
+</script>
+{% endblock %}

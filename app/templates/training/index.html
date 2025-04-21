@@ -1,0 +1,322 @@
+{% extends "layout.html" %}
+
+{% block title %}Training - NAPOLCOM OMR Processing System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2>Training</h2>
+        <p class="text-muted">Manage datasets and train models</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="/training/generate" class="btn btn-outline-primary me-2">
+            <i class="bi bi-database-add"></i> Generate Dataset
+        </a>
+        <a href="/training/new" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Train New Model
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Datasets</h5>
+                <a href="/training/datasets" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Template</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="datasets-list">
+                        <tr>
+                            <td colspan="5" class="text-center py-4">Loading datasets...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Models</h5>
+                <a href="/training/models" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Template</th>
+                            <th>Accuracy</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="models-list">
+                        <tr>
+                            <td colspan="5" class="text-center py-4">Loading models...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Active Training Jobs</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Model Name</th>
+                            <th>Dataset</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobs-list">
+                        <tr>
+                            <td colspan="6" class="text-center py-4">No active training jobs</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDatasets();
+        loadModels();
+        loadTrainingJobs();
+    });
+    
+    // Load datasets
+    async function loadDatasets() {
+        try {
+            const response = await apiRequest('/training/datasets?limit=5');
+            
+            const tableBody = document.getElementById('datasets-list');
+            
+            // Clear existing content
+            tableBody.innerHTML = '';
+            
+            // Check if we have datasets
+            if (!response || !response.items || response.items.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            No datasets found. <a href="/training/generate">Generate your first dataset</a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add each dataset to the table
+            response.items.forEach(dataset => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${dataset.id}</td>
+                    <td>${dataset.dataset_name}</td>
+                    <td>${dataset.template_id}</td>
+                    <td>${formatDate(dataset.created_at)}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/training/datasets/${dataset.id}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteDataset(${dataset.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error loading datasets:', error);
+            showNotification('Failed to load datasets', 'danger');
+        }
+    }
+    
+    // Load models
+    async function loadModels() {
+        try {
+            const response = await apiRequest('/training/models?limit=5');
+            
+            const tableBody = document.getElementById('models-list');
+            
+            // Clear existing content
+            tableBody.innerHTML = '';
+            
+            // Check if we have models
+            if (!response || !response.items || response.items.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            No models found. <a href="/training/new">Train your first model</a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add each model to the table
+            response.items.forEach(model => {
+                // Extract metrics if available
+                const accuracy = model.metrics && model.metrics.map50 
+                    ? `${Math.round(model.metrics.map50 * 100)}%` 
+                    : 'N/A';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${model.id}</td>
+                    <td>${model.model_name}</td>
+                    <td>${model.template_id}</td>
+                    <td>${accuracy}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/training/models/${model.id}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteModel(${model.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error loading models:', error);
+            showNotification('Failed to load models', 'danger');
+        }
+    }
+    
+    // Load training jobs
+    async function loadTrainingJobs() {
+        // In a real implementation, we would fetch active training jobs from the API
+        // For now, we'll just use sample data
+        
+        const tableBody = document.getElementById('jobs-list');
+        
+        // Sample data - comment out to show empty state
+        const sampleJobs = [
+            {
+                id: 42,
+                model_name: 'NAPOLCOM_Detector_v3',
+                dataset_id: 5,
+                dataset_name: 'NAPOLCOM_Dataset_002',
+                progress: 0.65,
+                status: 'running'
+            }
+        ];
+        
+        // Clear existing content
+        tableBody.innerHTML = '';
+        
+        // Check if we have active jobs
+        if (!sampleJobs || sampleJobs.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4">No active training jobs</td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Add each job to the table
+        sampleJobs.forEach(job => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${job.id}</td>
+                <td>${job.model_name}</td>
+                <td>${job.dataset_name}</td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: ${job.progress * 100}%" 
+                             aria-valuenow="${job.progress * 100}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            ${Math.round(job.progress * 100)}%
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge bg-${job.status === 'running' ? 'primary' : 'secondary'}">
+                        ${job.status}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="viewDetails(${job.id})">
+                        <i class="bi bi-info-circle"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="cancelJob(${job.id})">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    // Delete dataset
+    function deleteDataset(id) {
+        if (confirm(`Are you sure you want to delete dataset #${id}?`)) {
+            // In a real implementation, we would make an API call to delete the dataset
+            showNotification('Dataset deleted successfully', 'success');
+            loadDatasets();
+        }
+    }
+    
+    // Delete model
+    function deleteModel(id) {
+        if (confirm(`Are you sure you want to delete model #${id}?`)) {
+            // In a real implementation, we would make an API call to delete the model
+            showNotification('Model deleted successfully', 'success');
+            loadModels();
+        }
+    }
+    
+    // View job details
+    function viewDetails(id) {
+        // In a real implementation, we would redirect to a job details page
+        // or show a modal with detailed information
+        alert(`Viewing details for job #${id}`);
+    }
+    
+    // Cancel job
+    function cancelJob(id) {
+        if (confirm(`Are you sure you want to cancel training job #${id}?`)) {
+            // In a real implementation, we would make an API call to cancel the job
+            showNotification('Training job cancelled', 'success');
+            loadTrainingJobs();
+        }
+    }
+</script>
+{% endblock %}

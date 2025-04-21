@@ -1,0 +1,463 @@
+{% extends "layout.html" %}
+
+{% block title %}Settings - NAPOLCOM OMR Processing System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Settings</h2>
+        <p class="text-muted">Configure your application settings</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="list-group mb-4">
+            <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="tab" role="tab">
+                <i class="bi bi-gear me-2"></i> General
+            </a>
+            <a href="#appearance" class="list-group-item list-group-item-action" data-bs-toggle="tab" role="tab">
+                <i class="bi bi-palette me-2"></i> Appearance
+            </a>
+            <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="tab" role="tab">
+                <i class="bi bi-bell me-2"></i> Notifications
+            </a>
+            <a href="#processing" class="list-group-item list-group-item-action" data-bs-toggle="tab" role="tab">
+                <i class="bi bi-cpu me-2"></i> Processing
+            </a>
+            <a href="#api" class="list-group-item list-group-item-action" data-bs-toggle="tab" role="tab">
+                <i class="bi bi-braces me-2"></i> API
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="tab-content">
+            <!-- General Settings -->
+            <div class="tab-pane fade show active" id="general" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">General Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="general-form">
+                            <div class="mb-3">
+                                <label for="language" class="form-label">Language</label>
+                                <select class="form-select" id="language">
+                                    <option value="en" selected>English</option>
+                                    <option value="fil">Filipino</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="timezone" class="form-label">Timezone</label>
+                                <select class="form-select" id="timezone">
+                                    <option value="Asia/Manila" selected>Asia/Manila (UTC+8)</option>
+                                    <option value="UTC">UTC</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="date-format" class="form-label">Date Format</label>
+                                <select class="form-select" id="date-format">
+                                    <option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="auto-logout" checked>
+                                <label class="form-check-label" for="auto-logout">
+                                    Auto logout after 30 minutes of inactivity
+                                </label>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Appearance Settings -->
+            <div class="tab-pane fade" id="appearance" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Appearance Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="appearance-form">
+                            <div class="mb-3">
+                                <label class="form-label">Theme</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="theme" id="theme-light" value="light" checked>
+                                        <label class="form-check-label" for="theme-light">Light</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="theme" id="theme-dark" value="dark">
+                                        <label class="form-check-label" for="theme-dark">Dark</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="theme" id="theme-system" value="system">
+                                        <label class="form-check-label" for="theme-system">Use System Setting</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="density" class="form-label">UI Density</label>
+                                <select class="form-select" id="density">
+                                    <option value="comfortable" selected>Comfortable</option>
+                                    <option value="compact">Compact</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="font-size" class="form-label">Font Size</label>
+                                <select class="form-select" id="font-size">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications Settings -->
+            <div class="tab-pane fade" id="notifications" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Notification Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="notifications-form">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="email-notifications" checked>
+                                <label class="form-check-label" for="email-notifications">
+                                    Receive email notifications
+                                </label>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="browser-notifications" checked>
+                                <label class="form-check-label" for="browser-notifications">
+                                    Enable browser notifications
+                                </label>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Notify me about</label>
+                                
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="notify-processing-complete" checked>
+                                    <label class="form-check-label" for="notify-processing-complete">
+                                        Form processing completed
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="notify-training-complete" checked>
+                                    <label class="form-check-label" for="notify-training-complete">
+                                        Model training completed
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="notify-errors" checked>
+                                    <label class="form-check-label" for="notify-errors">
+                                        Processing errors
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="notify-system-updates">
+                                    <label class="form-check-label" for="notify-system-updates">
+                                        System updates
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Processing Settings -->
+            <div class="tab-pane fade" id="processing" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Processing Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="processing-form">
+                            <div class="mb-3">
+                                <label for="default-template" class="form-label">Default Template</label>
+                                <select class="form-select" id="default-template">
+                                    <option value="" selected>-- Select a template --</option>
+                                    <!-- Templates will be loaded dynamically -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="default-model" class="form-label">Default Model</label>
+                                <select class="form-select" id="default-model">
+                                    <option value="" selected>-- Select a model --</option>
+                                    <!-- Models will be loaded dynamically -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="confidence-threshold" class="form-label">
+                                    Confidence Threshold
+                                    <span class="text-muted" id="confidence-value">0.5</span>
+                                </label>
+                                <input type="range" class="form-range" id="confidence-threshold" min="0" max="1" step="0.01" value="0.5">
+                                <div class="form-text">
+                                    Higher values increase precision but may miss some marks
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="auto-enhancement" checked>
+                                <label class="form-check-label" for="auto-enhancement">
+                                    Enable automatic image enhancement
+                                </label>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="save-debug" checked>
+                                <label class="form-check-label" for="save-debug">
+                                    Save debug images
+                                </label>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- API Settings -->
+            <div class="tab-pane fade" id="api" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">API Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h6>API Access</h6>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="api-enable" checked>
+                                <label class="form-check-label" for="api-enable">Enable API Access</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>API Keys</h6>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" value="ak_1a2b3c4d5e6f7g8h9i0j" id="api-key" readonly>
+                                <button class="btn btn-outline-secondary" type="button" id="copy-key">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" id="regenerate-key">
+                                    <i class="bi bi-arrow-repeat"></i> Regenerate
+                                </button>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-info-circle"></i> Keep your API key secret. Regenerating will invalidate the existing key.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Rate Limiting</h6>
+                            <div class="mb-3">
+                                <label for="rate-limit" class="form-label">Requests per minute</label>
+                                <input type="number" class="form-control" id="rate-limit" value="60" min="1">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Allowed Origins (CORS)</h6>
+                            <div class="mb-3">
+                                <input type="text" class="form-control mb-2" id="new-origin" placeholder="Enter origin URL">
+                                <button class="btn btn-sm btn-outline-secondary" id="add-origin">
+                                    <i class="bi bi-plus"></i> Add Origin
+                                </button>
+                            </div>
+                            <div class="list-group" id="origins-list">
+                                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    https://example.com
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    http://localhost:3000
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary" id="save-api-settings">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Update confidence threshold value display
+    document.getElementById('confidence-threshold').addEventListener('input', function() {
+        document.getElementById('confidence-value').textContent = this.value;
+    });
+    
+    // Copy API key to clipboard
+    document.getElementById('copy-key').addEventListener('click', function() {
+        const apiKey = document.getElementById('api-key');
+        apiKey.select();
+        document.execCommand('copy');
+        
+        // Show tooltip or notification
+        showNotification('API key copied to clipboard', 'success');
+    });
+    
+    // Regenerate API key
+    document.getElementById('regenerate-key').addEventListener('click', function() {
+        if (confirm('Are you sure you want to regenerate your API key? This will invalidate the existing key.')) {
+            // In a real implementation, we would make an API call to regenerate the key
+            // For now, we'll just show a sample key
+            document.getElementById('api-key').value = 'ak_' + Math.random().toString(36).substring(2, 15);
+            showNotification('API key regenerated', 'success');
+        }
+    });
+    
+    // Add origin
+    document.getElementById('add-origin').addEventListener('click', function() {
+        const originInput = document.getElementById('new-origin');
+        const origin = originInput.value.trim();
+        
+        if (!origin) {
+            showNotification('Please enter an origin URL', 'warning');
+            return;
+        }
+        
+        // Add the new origin to the list
+        const originsList = document.getElementById('origins-list');
+        const listItem = document.createElement('div');
+        listItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+        listItem.innerHTML = `
+            ${origin}
+            <button class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-x"></i>
+            </button>
+        `;
+        
+        // Add event listener to remove button
+        listItem.querySelector('button').addEventListener('click', function() {
+            listItem.remove();
+        });
+        
+        originsList.appendChild(listItem);
+        originInput.value = '';
+    });
+    
+    // Handle form submissions
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real implementation, we would make an API call to save the settings
+            // For now, we'll just show a notification
+            showNotification('Settings saved successfully', 'success');
+        });
+    });
+    
+    // Save API settings
+    document.getElementById('save-api-settings').addEventListener('click', function() {
+        // In a real implementation, we would make an API call to save the settings
+        // For now, we'll just show a notification
+        showNotification('API settings saved successfully', 'success');
+    });
+    
+    // Load templates and models
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Load templates
+            const templates = await apiRequest('/templates');
+            const templateSelect = document.getElementById('default-template');
+            
+            if (templates && templates.items && templates.items.length > 0) {
+                templates.items.forEach(template => {
+                    const option = document.createElement('option');
+                    option.value = template.id;
+                    option.textContent = template.name;
+                    templateSelect.appendChild(option);
+                });
+            }
+            
+            // Load models
+            const models = await apiRequest('/training/models');
+            const modelSelect = document.getElementById('default-model');
+            
+            if (models && models.items && models.items.length > 0) {
+                models.items.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.id;
+                    option.textContent = model.model_name;
+                    modelSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading settings data:', error);
+        }
+    });
+    
+    // Make custom dropdown item handlers for the tabs
+    document.querySelectorAll('.list-group-item[data-bs-toggle="tab"]').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all items
+            document.querySelectorAll('.list-group-item').forEach(i => {
+                i.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            this.classList.add('active');
+            
+            // Activate the tab
+            const tabId = this.getAttribute('href');
+            const tabElement = document.querySelector(tabId);
+            
+            // Hide all tabs
+            document.querySelectorAll('.tab-pane').forEach(tab => {
+                tab.classList.remove('show', 'active');
+            });
+            
+            // Show the selected tab
+            tabElement.classList.add('show', 'active');
+        });
+    });
+</script>
+{% endblock %}

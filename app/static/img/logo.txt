@@ -1,0 +1,2 @@
+This is a placeholder for the NAPOLCOM logo image file.
+You should replace this with an actual logo.png file.
